@@ -1,0 +1,19 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "../dist",
+    "sourceMap": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "strict": true,
+    "suppressImplicitAnyIndexErrors": true
+    //"noUnusedLocals": true
+  },
+  "include": [
+    "*.ts",
+    "../client_user/types.d.ts"
+  ]
+}

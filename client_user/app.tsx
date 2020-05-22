@@ -1,0 +1,138 @@
+﻿
+/// <reference path="csstype.d.ts" />
+/// <reference path="react.d.ts" />
+/// <reference path="polyfills.ts" />
+/// <reference path="tools.tsx" />
+
+/*
+	clanek s grafem: http://www.righto.com/2013/11/how-hacker-news-ranking-really-works.html
+	https://news.ycombinator.com/best	clanky jsou serazene podle "points"
+	https://github.com/HackerNews/API, https://hacker-news.firebaseio.com/v0/item/121003.json?print=pretty
+	http://hnapp.com/?q=score>50
+
+	https://hn.algolia.com/?dateEnd=1587317653&dateRange=custom&dateStart=1586712853&page=0&prefix=false&query=&sort=byPopularity&type=story
+*/
+
+app();
+async function app() {
+
+	const days = 7;
+	const hitsCount = 300;
+	const now = new Date();
+	const from = nextDay1(now, -days);
+	const to = nextDay1(now, 0);
+
+	// rozlozeni stranky
+	let table: HTMLElement;
+	let graph: HTMLElement;
+	const div =
+		<div style={{ backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px", }}>
+			<div style={{ height: "10px", }} />
+			<div><span title={formatDate(from)}>{formatDate2(from)}</span> - <span title={formatDate(to)}>{formatDate2(nextDay1(to, -1))}</span></div>
+			<div style={{ height: "10px", }} />
+			{graph = <div style={{ float: "right", position: "sticky", top: "60px", width: "600px", height: "300px", }} />}
+			{table = <table style={{ borderCollapse: "collapse", }}><tr><td>...</td></tr></table>}
+		</div>;
+	ac(document.body, div);
+
+	// stazeni dat
+	const data: TApi = await (await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>${from.getTime() / 1000},created_at_i<${to.getTime() / 1000}&hitsPerPage=${hitsCount}`)).json();
+	type TApi = {
+		hits: {
+			title: string | null,
+			url: string | null,
+			points: number,
+			num_comments: number | null,
+			created_at_i: number,
+			//relevancy_score: number,
+			//_tags: string[],
+			objectID: string,
+		}[];
+	};
+	const data2 = data.hits.map(h => ({
+		url: h.url ?? `https://news.ycombinator.com/item?id=${h.objectID}`,
+		urlComments: `https://news.ycombinator.com/item?id=${h.objectID}`,
+		created_at: new Date(h.created_at_i * 1000),
+		title: h.title ?? "",
+		points: h.points,
+		num_comments: h.num_comments ?? 0,
+	}));
+
+	// vytvoreni elementu
+	const [x1, x2,] = [30, 590,], [y1, y2,] = [282, 10,];
+	const xAxis = createTimeAxis(from, to, x1, x2);
+	const yAxis = createCommonAxis(Math.min(100, ...data2.map(h => h.points)), Math.max(1000, ...data2.map(h => h.points)), y1, y2);
+	const data3 = data2.map(h => {
+		const tr =
+			<tr>
+				<td>{h.points}</td>
+				<td style={{ paddingLeft: "10px", whiteSpace: "nowrap", }} title={formatDate(h.created_at)}>{formatDate2(h.created_at)}</td>
+				<td style={{ paddingLeft: "10px", }}><a href={h.url}>{h.title}</a> | <a href={h.urlComments}>{h.num_comments} comments</a></td>
+			</tr>;
+		const point =
+			<a href={h.urlComments} className="point" title={h.title!} style={{ position: "absolute", left: `${xAxis.toDisp(h.created_at) - 3}px`, top: `${yAxis.toDisp(h.points) - 3}px`, width: "7px", height: "7px", borderRadius: "100px", }} />;
+
+		tr.onmouseenter = () => setStyle(point, { border: "1px solid black", });
+		tr.onmouseleave = () => setStyle(point, { border: "none", });
+		point.onmouseenter = () => setStyle(tr, { backgroundColor: "#ddd", });
+		point.onmouseleave = () => setStyle(tr, { backgroundColor: null as any as string, });
+
+		return { ...h, tr, point, };
+	});
+
+	// zobrazeni tabulky
+	table.innerHTML = "";
+	ac(table, data3.map(h => h.tr));
+
+	// zobrazeni grafu
+	ac(graph,
+		<svg style={{ width: "100%", height: "100%", transform: "translate(-0.5px, -0.5px)", backgroundColor: "#fff", pointerEvents: "none", }}>
+			{yAxis.linesH(x1, x2)}
+			{xAxis.linesV(y1, y2)}
+			<path style={{ fill: "none", stroke: "#999", }} d={`M${x1},${y1} H${x2}`} />
+			<path style={{ fill: "none", stroke: "#999", }} d={`M${x1},${y1} V${y2}`} />
+		</svg>,
+		data3.map(h => h.point)
+	);
+}
+
+
+
+
+
+//function formatDay(day: Date) { return `${day.getFullYear()}-${pad(day.getMonth() + 1, 2)}-${pad(day.getDate(), 2)}`; }
+function formatDate2(d: Date) { return `${d.getDate()}. ${d.getMonth() + 1}.`; }
+function isMonday(d: Date) { return d.getDay() === 1; }
+
+function createTimeAxis(dataFrom: Date, dataTo: Date, dispFrom: number, dispTo: number) {
+
+	return { toDisp, linesV, };
+
+	function toDisp(x: Date) { return linInp(x.getTime(), dataFrom.getTime(), dataTo.getTime(), dispFrom, dispTo); }
+
+	function linesV(y1: number, y2: number) {
+		const ret: HTMLElement[] = [];
+		for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
+			ret.push(<path style={{ fill: "none", stroke: isMonday(i) ? "#ccc" : "#eee", }} d={`M${Math.round(toDisp(i))},${y1} V${y2}`} />);
+		for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
+			ret.push(<text x={Math.round(toDisp(i))} y={y1 + 1} style={{ font: "normal 12px sans-serif", fill: "#666", dominantBaseline: "hanging", }}>{formatDate2(i)}</text>);
+		return ret;
+	}
+}
+
+function createCommonAxis(dataFrom: number, dataTo: number, dispFrom: number, dispTo: number) {
+
+	return { toDisp, linesH, };
+
+	function toDisp(x: number) { return linInp(trans(x), trans(dataFrom), trans(dataTo), dispFrom - 5, dispTo + 5); }
+	function trans(x: number) { return Math.log(x); }
+
+	function linesH(x1: number, x2: number) {
+		const ret: HTMLElement[] = [];
+		for (let i = 0; i < dataTo; i += 100)
+			ret.push(<path style={{ fill: "none", stroke: i % 1000 === 0 ? "#ccc" : i % 500 === 0 ? "#ddd" : "#eee", }} d={`M${x1},${Math.round(toDisp(i))} H${x2}`} />);
+		[3000, 2000, 1000, 500, 400, 300, 200, 100, 50, 40, 30, 20, 10,].filter(i => dataFrom <= i && i < dataTo)
+			.forEach(i => ret.push(<text x={x1 - 4} y={toDisp(i)} style={{ font: "normal 12px sans-serif", fill: "#666", textAnchor: "end", dominantBaseline: "middle", }}>{i >= 1000 ? `${i / 1000}k` : i}</text>));
+		return ret;
+	}
+}
