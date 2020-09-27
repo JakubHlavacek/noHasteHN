@@ -14,13 +14,15 @@
 */
 
 app();
+window.addEventListener('popstate', app);
 async function app() {
 
-	const days = 7;
+	const pars = toDictionary(window.location.hash.substring(1).split("&").map(p => p.split("=")), p => p[0], p => p[1]);
+
+	const days = pars.days !== undefined ? +pars.days : 7;
+	const from = pars.from !== undefined ? new Date(pars.from) : nextDay1(new Date(), -days);
 	const hitsCount = 300;
-	const now = new Date();
-	const from = nextDay1(now, -days);
-	const to = nextDay1(now, 0);
+	const to = nextDay1(from, days);
 
 	// rozlozeni stranky
 	let table: HTMLElement;
@@ -33,10 +35,9 @@ async function app() {
 			{graph = <div style={{ float: "right", position: "sticky", top: "60px", width: "600px", height: "300px", }} />}
 			{table = <table style={{ borderCollapse: "collapse", }}><tr><td>...</td></tr></table>}
 		</div>;
-	ac(document.body, div);
 
 	// stazeni dat
-	const data: TApi = await (await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>${from.getTime() / 1000},created_at_i<${to.getTime() / 1000}&hitsPerPage=${hitsCount}`)).json();
+	const data: TApi = await(await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>${from.getTime() / 1000},created_at_i<${to.getTime() / 1000}&hitsPerPage=${hitsCount}`)).json();
 	type TApi = {
 		hits: {
 			title: string | null,
@@ -70,7 +71,7 @@ async function app() {
 				<td style={{ paddingLeft: "10px", }}><a href={h.url}>{h.title}</a> | <a href={h.urlComments}>{h.num_comments} comments</a></td>
 			</tr>;
 		const point =
-			<a href={h.urlComments} className="point" title={h.title!} style={{ position: "absolute", left: `${xAxis.toDisp(h.created_at) - 3}px`, top: `${yAxis.toDisp(h.points) - 3}px`, width: "7px", height: "7px", borderRadius: "100px", }} />;
+			<a href={h.urlComments} className="point" title={h.title!} style={{ position: "absolute", left: `${xAxis.toDisp(h.created_at) - 3}px`, top: `${yAxis.toDisp(h.points) - 4}px`, width: "7px", height: "7px", borderRadius: "100px", }} />;
 
 		tr.onmouseenter = () => setStyle(point, { border: "1px solid black", });
 		tr.onmouseleave = () => setStyle(point, { border: "none", });
@@ -92,10 +93,18 @@ async function app() {
 			<path style={{ fill: "none", stroke: "#999", }} d={`M${x1},${y1} H${x2}`} />
 			<path style={{ fill: "none", stroke: "#999", }} d={`M${x1},${y1} V${y2}`} />
 		</svg>,
-		data3.map(h => h.point)
+		data3.map(h => h.point),
+		xAxis.linesV2(y1, y2),
+		<div>{a(nextDay1(from, -days), days, <span>&lt;</span>)} {a(nextDay1(from, days), days, <span>&gt;</span>)} {days === 1 ? a(nextDay1(from, -3), 7, "^") : ""}</div>
 	);
+
+	document.body.innerHTML = "";
+	ac(document.body, div);
 }
 
+function a(from2: Date, days2: number, text: TChild, style: React.CSSProperties = {}) {
+	return <a href={`#from=${from2.getFullYear()}-${from2.getMonth() + 1}-${from2.getDate()}&days=${days2}`} style={style}>{text}</a>
+}
 
 
 
@@ -106,7 +115,7 @@ function isMonday(d: Date) { return d.getDay() === 1; }
 
 function createTimeAxis(dataFrom: Date, dataTo: Date, dispFrom: number, dispTo: number) {
 
-	return { toDisp, linesV, };
+	return { toDisp, linesV, linesV2, };
 
 	function toDisp(x: Date) { return linInp(x.getTime(), dataFrom.getTime(), dataTo.getTime(), dispFrom, dispTo); }
 
@@ -114,8 +123,15 @@ function createTimeAxis(dataFrom: Date, dataTo: Date, dispFrom: number, dispTo: 
 		const ret: HTMLElement[] = [];
 		for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
 			ret.push(<path style={{ fill: "none", stroke: isMonday(i) ? "#ccc" : "#eee", }} d={`M${Math.round(toDisp(i))},${y1} V${y2}`} />);
+		//for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
+		//	ret.push(<text x={Math.round(toDisp(i))} y={y1 + 1} style={{ font: "normal 12px sans-serif", fill: "#666", dominantBaseline: "hanging", }}>{formatDate2(i)}</text>);
+		return ret;
+	}
+
+	function linesV2(y1: number, y2: number) {
+		const ret: HTMLElement[] = [];
 		for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
-			ret.push(<text x={Math.round(toDisp(i))} y={y1 + 1} style={{ font: "normal 12px sans-serif", fill: "#666", dominantBaseline: "hanging", }}>{formatDate2(i)}</text>);
+			ret.push(a(i, 1, formatDate2(i), { position: "absolute", left: `${Math.round(toDisp(i))}px`, top: `${y1 + 1}px`, font: "normal 12px sans-serif", }));
 		return ret;
 	}
 }

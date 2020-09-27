@@ -220,6 +220,11 @@ function myCreateElement(tag /* | ((props: any) => U)*/, attrs) {
         return ac.apply(void 0, __spreadArrays([element], children));
     }
 }
+function toDictionary(arr, keySelector, valueSelector) {
+    var ret = {};
+    arr.forEach(function (p) { return ret[keySelector(p)] = valueSelector(p); });
+    return ret;
+}
 /// <reference path="csstype.d.ts" />
 /// <reference path="react.d.ts" />
 /// <reference path="polyfills.ts" />
@@ -233,29 +238,29 @@ function myCreateElement(tag /* | ((props: any) => U)*/, attrs) {
     https://hn.algolia.com/?dateEnd=1587317653&dateRange=custom&dateStart=1586712853&page=0&prefix=false&query=&sort=byPopularity&type=story
 */
 app();
+window.addEventListener('popstate', app);
 function app() {
     return __awaiter(this, void 0, void 0, function () {
-        var days, hitsCount, now, from, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
+        var pars, days, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    days = 7;
+                    pars = toDictionary(window.location.hash.substring(1).split("&").map(function (p) { return p.split("="); }), function (p) { return p[0]; }, function (p) { return p[1]; });
+                    days = pars.days !== undefined ? +pars.days : 7;
+                    from = pars.from !== undefined ? new Date(pars.from) : nextDay1(new Date(), -days);
                     hitsCount = 300;
-                    now = new Date();
-                    from = nextDay1(now, -days);
-                    to = nextDay1(now, 0);
-                    div = myCreateElement("div", { style: { backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px" } },
-                        myCreateElement("div", { style: { height: "10px" } }),
+                    to = nextDay1(from, days);
+                    div = myCreateElement("div", { style: { backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px", } },
+                        myCreateElement("div", { style: { height: "10px", } }),
                         myCreateElement("div", null,
                             myCreateElement("span", { title: formatDate(from) }, formatDate2(from)),
                             " - ",
                             myCreateElement("span", { title: formatDate(to) }, formatDate2(nextDay1(to, -1)))),
-                        myCreateElement("div", { style: { height: "10px" } }),
-                        graph = myCreateElement("div", { style: { float: "right", position: "sticky", top: "60px", width: "600px", height: "300px" } }),
-                        table = myCreateElement("table", { style: { borderCollapse: "collapse" } },
+                        myCreateElement("div", { style: { height: "10px", } }),
+                        graph = myCreateElement("div", { style: { float: "right", position: "sticky", top: "60px", width: "600px", height: "300px", } }),
+                        table = myCreateElement("table", { style: { borderCollapse: "collapse", } },
                             myCreateElement("tr", null,
                                 myCreateElement("td", null, "..."))));
-                    ac(document.body, div);
                     return [4 /*yield*/, fetch("https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>" + from.getTime() / 1000 + ",created_at_i<" + to.getTime() / 1000 + "&hitsPerPage=" + hitsCount)];
                 case 1: return [4 /*yield*/, (_c.sent()).json()];
                 case 2:
@@ -268,7 +273,7 @@ function app() {
                             created_at: new Date(h.created_at_i * 1000),
                             title: (_b = h.title, (_b !== null && _b !== void 0 ? _b : "")),
                             points: h.points,
-                            num_comments: (_c = h.num_comments, (_c !== null && _c !== void 0 ? _c : 0))
+                            num_comments: (_c = h.num_comments, (_c !== null && _c !== void 0 ? _c : 0)),
                         });
                     });
                     _a = [30, 590,], x1 = _a[0], x2 = _a[1], _b = [282, 10,], y1 = _b[0], y2 = _b[1];
@@ -277,59 +282,76 @@ function app() {
                     data3 = data2.map(function (h) {
                         var tr = myCreateElement("tr", null,
                             myCreateElement("td", null, h.points),
-                            myCreateElement("td", { style: { paddingLeft: "10px", whiteSpace: "nowrap" }, title: formatDate(h.created_at) }, formatDate2(h.created_at)),
-                            myCreateElement("td", { style: { paddingLeft: "10px" } },
+                            myCreateElement("td", { style: { paddingLeft: "10px", whiteSpace: "nowrap", }, title: formatDate(h.created_at) }, formatDate2(h.created_at)),
+                            myCreateElement("td", { style: { paddingLeft: "10px", } },
                                 myCreateElement("a", { href: h.url }, h.title),
                                 " | ",
                                 myCreateElement("a", { href: h.urlComments },
                                     h.num_comments,
                                     " comments")));
-                        var point = myCreateElement("a", { href: h.urlComments, className: "point", title: h.title, style: { position: "absolute", left: xAxis.toDisp(h.created_at) - 3 + "px", top: yAxis.toDisp(h.points) - 3 + "px", width: "7px", height: "7px", borderRadius: "100px" } });
-                        tr.onmouseenter = function () { return setStyle(point, { border: "1px solid black" }); };
-                        tr.onmouseleave = function () { return setStyle(point, { border: "none" }); };
-                        point.onmouseenter = function () { return setStyle(tr, { backgroundColor: "#ddd" }); };
-                        point.onmouseleave = function () { return setStyle(tr, { backgroundColor: null }); };
+                        var point = myCreateElement("a", { href: h.urlComments, className: "point", title: h.title, style: { position: "absolute", left: xAxis.toDisp(h.created_at) - 3 + "px", top: yAxis.toDisp(h.points) - 4 + "px", width: "7px", height: "7px", borderRadius: "100px", } });
+                        tr.onmouseenter = function () { return setStyle(point, { border: "1px solid black", }); };
+                        tr.onmouseleave = function () { return setStyle(point, { border: "none", }); };
+                        point.onmouseenter = function () { return setStyle(tr, { backgroundColor: "#ddd", }); };
+                        point.onmouseleave = function () { return setStyle(tr, { backgroundColor: null, }); };
                         return __assign(__assign({}, h), { tr: tr, point: point });
                     });
                     // zobrazeni tabulky
                     table.innerHTML = "";
                     ac(table, data3.map(function (h) { return h.tr; }));
                     // zobrazeni grafu
-                    ac(graph, myCreateElement("svg", { style: { width: "100%", height: "100%", transform: "translate(-0.5px, -0.5px)", backgroundColor: "#fff", pointerEvents: "none" } },
+                    ac(graph, myCreateElement("svg", { style: { width: "100%", height: "100%", transform: "translate(-0.5px, -0.5px)", backgroundColor: "#fff", pointerEvents: "none", } },
                         yAxis.linesH(x1, x2),
                         xAxis.linesV(y1, y2),
-                        myCreateElement("path", { style: { fill: "none", stroke: "#999" }, d: "M" + x1 + "," + y1 + " H" + x2 }),
-                        myCreateElement("path", { style: { fill: "none", stroke: "#999" }, d: "M" + x1 + "," + y1 + " V" + y2 })), data3.map(function (h) { return h.point; }));
+                        myCreateElement("path", { style: { fill: "none", stroke: "#999", }, d: "M" + x1 + "," + y1 + " H" + x2 }),
+                        myCreateElement("path", { style: { fill: "none", stroke: "#999", }, d: "M" + x1 + "," + y1 + " V" + y2 })), data3.map(function (h) { return h.point; }), xAxis.linesV2(y1, y2), myCreateElement("div", null,
+                        a(nextDay1(from, -days), days, myCreateElement("span", null, "<")),
+                        " ",
+                        a(nextDay1(from, days), days, myCreateElement("span", null, ">")),
+                        " ",
+                        days === 1 ? a(nextDay1(from, -3), 7, "^") : ""));
+                    document.body.innerHTML = "";
+                    ac(document.body, div);
                     return [2 /*return*/];
             }
         });
     });
 }
+function a(from2, days2, text, style) {
+    if (style === void 0) { style = {}; }
+    return myCreateElement("a", { href: "#from=" + from2.getFullYear() + "-" + (from2.getMonth() + 1) + "-" + from2.getDate() + "&days=" + days2, style: style }, text);
+}
 //function formatDay(day: Date) { return `${day.getFullYear()}-${pad(day.getMonth() + 1, 2)}-${pad(day.getDate(), 2)}`; }
 function formatDate2(d) { return d.getDate() + ". " + (d.getMonth() + 1) + "."; }
 function isMonday(d) { return d.getDay() === 1; }
 function createTimeAxis(dataFrom, dataTo, dispFrom, dispTo) {
-    return { toDisp: toDisp, linesV: linesV };
+    return { toDisp: toDisp, linesV: linesV, linesV2: linesV2, };
     function toDisp(x) { return linInp(x.getTime(), dataFrom.getTime(), dataTo.getTime(), dispFrom, dispTo); }
     function linesV(y1, y2) {
         var ret = [];
         for (var i = dataFrom; i < dataTo; i = nextDay1(i, 1))
-            ret.push(myCreateElement("path", { style: { fill: "none", stroke: isMonday(i) ? "#ccc" : "#eee" }, d: "M" + Math.round(toDisp(i)) + "," + y1 + " V" + y2 }));
+            ret.push(myCreateElement("path", { style: { fill: "none", stroke: isMonday(i) ? "#ccc" : "#eee", }, d: "M" + Math.round(toDisp(i)) + "," + y1 + " V" + y2 }));
+        //for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
+        //	ret.push(<text x={Math.round(toDisp(i))} y={y1 + 1} style={{ font: "normal 12px sans-serif", fill: "#666", dominantBaseline: "hanging", }}>{formatDate2(i)}</text>);
+        return ret;
+    }
+    function linesV2(y1, y2) {
+        var ret = [];
         for (var i = dataFrom; i < dataTo; i = nextDay1(i, 1))
-            ret.push(myCreateElement("text", { x: Math.round(toDisp(i)), y: y1 + 1, style: { font: "normal 12px sans-serif", fill: "#666", dominantBaseline: "hanging" } }, formatDate2(i)));
+            ret.push(a(i, 1, formatDate2(i), { position: "absolute", left: Math.round(toDisp(i)) + "px", top: y1 + 1 + "px", font: "normal 12px sans-serif", }));
         return ret;
     }
 }
 function createCommonAxis(dataFrom, dataTo, dispFrom, dispTo) {
-    return { toDisp: toDisp, linesH: linesH };
+    return { toDisp: toDisp, linesH: linesH, };
     function toDisp(x) { return linInp(trans(x), trans(dataFrom), trans(dataTo), dispFrom - 5, dispTo + 5); }
     function trans(x) { return Math.log(x); }
     function linesH(x1, x2) {
         var ret = [];
         for (var i = 0; i < dataTo; i += 100)
-            ret.push(myCreateElement("path", { style: { fill: "none", stroke: i % 1000 === 0 ? "#ccc" : i % 500 === 0 ? "#ddd" : "#eee" }, d: "M" + x1 + "," + Math.round(toDisp(i)) + " H" + x2 }));
+            ret.push(myCreateElement("path", { style: { fill: "none", stroke: i % 1000 === 0 ? "#ccc" : i % 500 === 0 ? "#ddd" : "#eee", }, d: "M" + x1 + "," + Math.round(toDisp(i)) + " H" + x2 }));
         [3000, 2000, 1000, 500, 400, 300, 200, 100, 50, 40, 30, 20, 10,].filter(function (i) { return dataFrom <= i && i < dataTo; })
-            .forEach(function (i) { return ret.push(myCreateElement("text", { x: x1 - 4, y: toDisp(i), style: { font: "normal 12px sans-serif", fill: "#666", textAnchor: "end", dominantBaseline: "middle" } }, i >= 1000 ? i / 1000 + "k" : i)); });
+            .forEach(function (i) { return ret.push(myCreateElement("text", { x: x1 - 4, y: toDisp(i), style: { font: "normal 12px sans-serif", fill: "#666", textAnchor: "end", dominantBaseline: "middle", } }, i >= 1000 ? i / 1000 + "k" : i)); });
         return ret;
     }
 }

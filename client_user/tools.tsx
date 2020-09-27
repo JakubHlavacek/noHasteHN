@@ -107,3 +107,9 @@ function myCreateElement<T extends keyof ElementTagNameMap/*, U*/>(tag: T/* | ((
 
 
 
+type Func<A1, Ret> = (a: A1) => Ret;
+function toDictionary<T, TKey extends keyof any, TValue>(arr: T[], keySelector: Func<T, TKey>, valueSelector: Func<T, TValue>) {
+	const ret: Record<TKey, TValue> = {} as Record<TKey, TValue>;
+	arr.forEach(p => ret[keySelector(p)] = valueSelector(p));
+	return ret;
+}
