@@ -18,7 +18,7 @@ if (!(Array.prototype as any).find) {
 			}
 
 			// 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
-			const thisArg = arguments[1];
+			const thisArg = arguments[1];	// eslint-disable-line prefer-rest-params
 
 			// 5. Let k be 0.
 			let k = 0;
@@ -48,7 +48,7 @@ if (!(Array.prototype as any).find) {
 
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 [Element.prototype, CharacterData.prototype, DocumentType.prototype].forEach(item => {
-	if (item.hasOwnProperty('remove')) {
+	if (item.hasOwnProperty('remove')) {	// eslint-disable-line no-prototype-builtins
 		return;
 	}
 	Object.defineProperty(item, 'remove', {

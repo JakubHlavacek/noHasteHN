@@ -69,7 +69,7 @@ if (!Array.prototype.find) {
                 throw new TypeError('predicate must be a function');
             }
             // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
-            var thisArg = arguments[1];
+            var thisArg = arguments[1]; // eslint-disable-line prefer-rest-params
             // 5. Let k be 0.
             var k = 0;
             // 6. Repeat, while k < len
@@ -94,7 +94,7 @@ if (!Array.prototype.find) {
 }
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 [Element.prototype, CharacterData.prototype, DocumentType.prototype].forEach(function (item) {
-    if (item.hasOwnProperty('remove')) {
+    if (item.hasOwnProperty('remove')) { // eslint-disable-line no-prototype-builtins
         return;
     }
     Object.defineProperty(item, 'remove', {
@@ -118,7 +118,6 @@ if (!Math.log10)
     Math.log10 = function (x) { return Math.log(x) * Math.LOG10E; };
 function pad(num, size) { var s = num + ""; while (s.length < size)
     s = "0" + s; return s; }
-;
 function formatDate(d) { return d.getDate() + ". " + (d.getMonth() + 1) + ". " + d.getFullYear() + " " + d.getHours() + ":" + pad(d.getMinutes(), 2) + ":" + pad(d.getSeconds(), 2) + " (UTC+" + -d.getTimezoneOffset() / 60 + ")"; }
 function linInp(x, x1From, x1To, x2From, x2To) { return (x - x1From) / (x1To - x1From) * (x2To - x2From) + x2From; }
 function nextDay1(d, step) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + step); }
@@ -241,13 +240,19 @@ app();
 window.addEventListener('popstate', app);
 function app() {
     return __awaiter(this, void 0, void 0, function () {
-        var pars, days, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
+        function parseLocal(s) {
+            var a = s.split(/\D/);
+            return new Date(+a[0], +a[1] - 1, +a[2]);
+        }
+        function isValidDate(d) { return d instanceof Date && !isNaN(+d); }
+        var pars, days, from0, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     pars = toDictionary(window.location.hash.substring(1).split("&").map(function (p) { return p.split("="); }), function (p) { return p[0]; }, function (p) { return p[1]; });
                     days = pars.days !== undefined ? +pars.days : 7;
-                    from = pars.from !== undefined ? new Date(pars.from) : nextDay1(new Date(), -days);
+                    from0 = parseLocal(pars.from);
+                    from = isValidDate(from0) ? from0 : nextDay1(new Date(), -days);
                     hitsCount = 300;
                     to = nextDay1(from, days);
                     div = myCreateElement("div", { style: { backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px", } },
@@ -268,12 +273,12 @@ function app() {
                     data2 = data.hits.map(function (h) {
                         var _a, _b, _c;
                         return ({
-                            url: (_a = h.url, (_a !== null && _a !== void 0 ? _a : "https://news.ycombinator.com/item?id=" + h.objectID)),
+                            url: (_a = h.url) !== null && _a !== void 0 ? _a : "https://news.ycombinator.com/item?id=" + h.objectID,
                             urlComments: "https://news.ycombinator.com/item?id=" + h.objectID,
                             created_at: new Date(h.created_at_i * 1000),
-                            title: (_b = h.title, (_b !== null && _b !== void 0 ? _b : "")),
+                            title: (_b = h.title) !== null && _b !== void 0 ? _b : "",
                             points: h.points,
-                            num_comments: (_c = h.num_comments, (_c !== null && _c !== void 0 ? _c : 0)),
+                            num_comments: (_c = h.num_comments) !== null && _c !== void 0 ? _c : 0,
                         });
                     });
                     _a = [30, 590,], x1 = _a[0], x2 = _a[1], _b = [282, 10,], y1 = _b[0], y2 = _b[1];

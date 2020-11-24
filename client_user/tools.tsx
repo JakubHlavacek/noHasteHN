@@ -1,5 +1,5 @@
 ﻿
-function pad(num: number | string, size: number) { let s = num + ""; while (s.length < size) s = "0" + s; return s; };
+function pad(num: number | string, size: number) { let s = num + ""; while (s.length < size) s = "0" + s; return s; }
 function formatDate(d: Date) { return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()} ${d.getHours()}:${pad(d.getMinutes(), 2)}:${pad(d.getSeconds(), 2)} (UTC+${-d.getTimezoneOffset() / 60})`; }
 function linInp(x: number, x1From: number, x1To: number, x2From: number, x2To: number) { return (x - x1From) / (x1To - x1From) * (x2To - x2From) + x2From; }
 function nextDay1(d: Date, step: number) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + step); }
@@ -68,9 +68,8 @@ function setAttrSvg(element: SVGElement, attrs: { [k: string]: string | number |
 }
 
 
-type TChild = string | number | Node | TChildArray;
-interface TChildArray extends Array<TChild> { }
-function ac<T extends Element>(element: T, ...children: TChildArray) {
+type TChild = string | number | Node | TChild[];
+function ac<T extends Element>(element: T, ...children: TChild[]) {
 	children.forEach(c => {
 		if (typeof c === "string")
 			element.appendChild(document.createTextNode(c));
@@ -87,7 +86,7 @@ function ac<T extends Element>(element: T, ...children: TChildArray) {
 }
 
 
-function myCreateElement<T extends keyof ElementTagNameMap/*, U*/>(tag: T/* | ((props: any) => U)*/, attrs: { [k: string]: string | number | React.CSSProperties } | null, ...children: TChildArray) {
+function myCreateElement<T extends keyof ElementTagNameMap/*, U*/>(tag: T/* | ((props: any) => U)*/, attrs: { [k: string]: string | number | React.CSSProperties } | null, ...children: TChild[]) {
 	//if (typeof tag === "function")
 	//	return tag({ ...attrs, children });
 	if (["svg", "path", "circle", "rect", "polyline", "text", "g", "clipPath", "defs",].indexOf(tag) >= 0) {
