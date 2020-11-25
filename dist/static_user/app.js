@@ -240,19 +240,20 @@ app();
 window.addEventListener('popstate', app);
 function app() {
     return __awaiter(this, void 0, void 0, function () {
-        function parseLocal(s) {
+        function parseDateLocal(s) {
             var a = s.split(/\D/);
             return new Date(+a[0], +a[1] - 1, +a[2]);
         }
-        function isValidDate(d) { return d instanceof Date && !isNaN(+d); }
+        function isDateValid(d) { return d instanceof Date && !isNaN(+d); }
+        function isString(s) { return s instanceof String; }
         var pars, days, from0, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     pars = toDictionary(window.location.hash.substring(1).split("&").map(function (p) { return p.split("="); }), function (p) { return p[0]; }, function (p) { return p[1]; });
                     days = pars.days !== undefined ? +pars.days : 7;
-                    from0 = parseLocal(pars.from);
-                    from = isValidDate(from0) ? from0 : nextDay1(new Date(), -days);
+                    from0 = parseDateLocal(isString(pars.from) ? pars.from : "");
+                    from = isDateValid(from0) ? from0 : nextDay1(new Date(), -days);
                     hitsCount = 300;
                     to = nextDay1(from, days);
                     div = myCreateElement("div", { style: { backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px", } },

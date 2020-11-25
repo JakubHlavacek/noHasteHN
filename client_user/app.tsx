@@ -20,13 +20,14 @@ async function app() {
 	const pars = toDictionary(window.location.hash.substring(1).split("&").map(p => p.split("=")), p => p[0], p => p[1]);
 
 	const days = pars.days !== undefined ? +pars.days : 7;
-	const from0 = parseLocal(pars.from);
-	const from = isValidDate(from0) ? from0 : nextDay1(new Date(), -days);
-	function parseLocal(s: string) {
+	const from0 = parseDateLocal(isString(pars.from) ? pars.from : "");
+	const from = isDateValid(from0) ? from0 : nextDay1(new Date(), -days);
+	function parseDateLocal(s: string) {
 		const a = s.split(/\D/);
 		return new Date(+a[0], +a[1] - 1, +a[2]);
 	}
-	function isValidDate(d: any): d is Date { return d instanceof Date && !isNaN(+d); }
+	function isDateValid(d: any): d is Date { return d instanceof Date && !isNaN(+d); }
+	function isString(s: any): s is string { return s instanceof String; }
 	const hitsCount = 300;
 	const to = nextDay1(from, days);
 
