@@ -116,6 +116,8 @@ if (!Math.trunc) {
 }
 if (!Math.log10)
     Math.log10 = function (x) { return Math.log(x) * Math.LOG10E; };
+function parseFloat2(s) { var n = +s; return "" + n === s ? n : NaN; } // https://stackoverflow.com/questions/17106681/parseint-vs-unary-plus-when-to-use-which
+function isNumeric(n) { return isFinite(+parseFloat2(n)); }
 function pad(num, size) { var s = num + ""; while (s.length < size)
     s = "0" + s; return s; }
 function formatDate(d) { return d.getDate() + ". " + (d.getMonth() + 1) + ". " + d.getFullYear() + " " + d.getHours() + ":" + pad(d.getMinutes(), 2) + ":" + pad(d.getSeconds(), 2) + " (UTC+" + -d.getTimezoneOffset() / 60 + ")"; }
@@ -242,17 +244,16 @@ function app() {
     return __awaiter(this, void 0, void 0, function () {
         function parseDateLocal(s) {
             var a = s.split(/\D/);
-            return new Date(+a[0], +a[1] - 1, +a[2]);
+            return [0, 1, 2,].every(function (i) { return isNumeric(a[i]); }) ? new Date(+a[0], +a[1] - 1, +a[2]) : new Date(NaN);
         }
         function isDateValid(d) { return d instanceof Date && !isNaN(+d); }
-        function isString(s) { return s instanceof String; }
         var pars, days, from0, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     pars = toDictionary(window.location.hash.substring(1).split("&").map(function (p) { return p.split("="); }), function (p) { return p[0]; }, function (p) { return p[1]; });
                     days = pars.days !== undefined ? +pars.days : 7;
-                    from0 = parseDateLocal(isString(pars.from) ? pars.from : "");
+                    from0 = pars.from !== undefined ? parseDateLocal(pars.from) : new Date(NaN);
                     from = isDateValid(from0) ? from0 : nextDay1(new Date(), -days);
                     hitsCount = 300;
                     to = nextDay1(from, days);

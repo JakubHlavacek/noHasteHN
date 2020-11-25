@@ -1,4 +1,6 @@
 ﻿
+function parseFloat2(s: string) { const n = +s; return `${n}` === s ? n : NaN; }	// https://stackoverflow.com/questions/17106681/parseint-vs-unary-plus-when-to-use-which
+function isNumeric(n: string) { return isFinite(+parseFloat2(n)); }
 function pad(num: number | string, size: number) { let s = num + ""; while (s.length < size) s = "0" + s; return s; }
 function formatDate(d: Date) { return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()} ${d.getHours()}:${pad(d.getMinutes(), 2)}:${pad(d.getSeconds(), 2)} (UTC+${-d.getTimezoneOffset() / 60})`; }
 function linInp(x: number, x1From: number, x1To: number, x2From: number, x2To: number) { return (x - x1From) / (x1To - x1From) * (x2To - x2From) + x2From; }
