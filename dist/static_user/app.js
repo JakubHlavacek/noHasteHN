@@ -1,10 +1,12 @@
 "use strict";
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
@@ -32,7 +34,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -116,13 +118,14 @@ if (!Math.trunc) {
 }
 if (!Math.log10)
     Math.log10 = function (x) { return Math.log(x) * Math.LOG10E; };
-function parseFloat2(s) { var n = +s; return "" + n === s ? n : NaN; } // https://stackoverflow.com/questions/17106681/parseint-vs-unary-plus-when-to-use-which
+function parseFloat2(s) { var n = +s; return "".concat(n) === s ? n : NaN; } // https://stackoverflow.com/questions/17106681/parseint-vs-unary-plus-when-to-use-which
 function isNumeric(n) { return isFinite(+parseFloat2(n)); }
 function pad(num, size) { var s = num + ""; while (s.length < size)
     s = "0" + s; return s; }
-function formatDate(d) { return d.getDate() + ". " + (d.getMonth() + 1) + ". " + d.getFullYear() + " " + d.getHours() + ":" + pad(d.getMinutes(), 2) + ":" + pad(d.getSeconds(), 2) + " (UTC+" + -d.getTimezoneOffset() / 60 + ")"; }
+function formatDate(d) { return "".concat(d.getDate(), ". ").concat(d.getMonth() + 1, ". ").concat(d.getFullYear(), " ").concat(d.getHours(), ":").concat(pad(d.getMinutes(), 2), ":").concat(pad(d.getSeconds(), 2), " (UTC+").concat(-d.getTimezoneOffset() / 60, ")"); }
 function linInp(x, x1From, x1To, x2From, x2To) { return (x - x1From) / (x1To - x1From) * (x2To - x2From) + x2From; }
 function nextDay1(d, step) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + step); }
+function range(n) { return Array(n).fill(0).map(function (_, i) { return i; }); }
 function setAttr(element, attrs) {
     Object.keys(attrs).forEach(function (k) {
         var v = attrs[k];
@@ -130,26 +133,26 @@ function setAttr(element, attrs) {
         //	element.setAttribute(k, v);
         //else
         if (!(k in element))
-            console.error(k + " is not a valid property name, <" + element.tagName + " " + k + "={" + v + "}>");
+            console.error("".concat(k, " is not a valid property name, <").concat(element.tagName, " ").concat(k, "={").concat(v, "}>"));
         else if (typeof v === "string")
             element[k] = v;
         else if (typeof v === "number")
             element[k] = v.toString();
         else if (v === null)
-            console.error(v + " is not a valid property value, <" + element.tagName + " " + k + "={" + v + "}>");
+            console.error("".concat(v, " is not a valid property value, <").concat(element.tagName, " ").concat(k, "={").concat(v, "}>"));
         else if (typeof v === "object")
             Object.keys(v).forEach(function (k2) {
                 if (k2 in element[k])
                     element[k][k2] = v[k2];
                 else
-                    console.error(k2 + " is not a valid " + k + ", <" + element.tagName + " " + k + "={{ " + k2 + ": ... }}>");
+                    console.error("".concat(k2, " is not a valid ").concat(k, ", <").concat(element.tagName, " ").concat(k, "={{ ").concat(k2, ": ... }}>"));
             });
         else if (typeof v === "boolean" && typeof element[k] === "boolean")
             element[k] = v;
         else if (typeof v === "function" && ["onclick", "onchange", "ontouchstart", "ontouchend", "onkeypress",].indexOf(k) !== -1)
             element[k] = v;
         else
-            console.error(v + " is not a valid property value, <" + element.tagName + " " + k + "={" + v + "}>", v);
+            console.error("".concat(v, " is not a valid property value, <").concat(element.tagName, " ").concat(k, "={").concat(v, "}>"), v);
     });
 }
 function setStyle(element, styles) {
@@ -166,20 +169,20 @@ function setAttrSvg(element, attrs) {
         else if (typeof v === "number")
             element.setAttribute(k, v.toString());
         else if (v === null)
-            console.error(v + " is not a valid property value, <" + element.tagName + " " + k + "={" + v + "}>");
+            console.error("".concat(v, " is not a valid property value, <").concat(element.tagName, " ").concat(k, "={").concat(v, "}>"));
         else if (typeof v === "object")
             Object.keys(v).forEach(function (k2) {
                 if (k2 in element[k])
                     element[k][k2] = v[k2];
                 else
-                    console.error(k2 + " is not a valid " + k + ", <" + element.tagName + " " + k + "={{ " + k2 + ": ... }}>");
+                    console.error("".concat(k2, " is not a valid ").concat(k, ", <").concat(element.tagName, " ").concat(k, "={{ ").concat(k2, ": ... }}>"));
             });
         //else if (typeof v === "boolean" && typeof element[k] === "boolean")
         //	element[k] = v;
         //else if (typeof v === "function" && k === "onclick")
         //	element[k] = v;
         else
-            console.error(v + " is not a valid property value, <" + element.tagName + " " + k + "={" + v + "}>", v);
+            console.error("".concat(v, " is not a valid property value, <").concat(element.tagName, " ").concat(k, "={").concat(v, "}>"), v);
     });
 }
 function ac(element) {
@@ -195,9 +198,9 @@ function ac(element) {
         else if (c instanceof Node)
             element.appendChild(c);
         else if (c instanceof Array)
-            ac.apply(void 0, __spreadArrays([element], c));
+            ac.apply(void 0, __spreadArray([element], c, false));
         else
-            console.error(c + " is not a valid child, <" + element.tagName + ">{" + c + "}</" + element.tagName + ">", c);
+            console.error("".concat(c, " is not a valid child, <").concat(element.tagName, ">{").concat(c, "}</").concat(element.tagName, ">"), c);
     });
     return element;
 }
@@ -212,19 +215,37 @@ function myCreateElement(tag /* | ((props: any) => U)*/, attrs) {
         var element = document.createElementNS("http://www.w3.org/2000/svg", tag);
         if (attrs !== null)
             setAttrSvg(element, attrs);
-        return ac.apply(void 0, __spreadArrays([element], children));
+        return ac.apply(void 0, __spreadArray([element], children, false));
     }
     else {
         var element = document.createElement(tag);
         if (attrs !== null)
             setAttr(element, attrs);
-        return ac.apply(void 0, __spreadArrays([element], children));
+        return ac.apply(void 0, __spreadArray([element], children, false));
     }
+}
+function replaceContent(parent) {
+    var newContent = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        newContent[_i - 1] = arguments[_i];
+    }
+    parent.innerText = "";
+    ac(parent, newContent);
 }
 function toDictionary(arr, keySelector, valueSelector) {
     var ret = {};
     arr.forEach(function (p) { return ret[keySelector(p)] = valueSelector(p); });
     return ret;
+}
+function isTouchEvent(e) { return e.touches !== undefined; }
+function eventPosToElement(e, elem) {
+    var rect = elem.getBoundingClientRect();
+    var pos = isTouchEvent(e) ? {
+        clientX: avg(range(e.touches.length).map(function (i) { return e.touches[i].clientX; })),
+        clientY: avg(range(e.touches.length).map(function (i) { return e.touches[i].clientY; }))
+    } : e;
+    return { x: pos.clientX - rect.left, y: pos.clientY - rect.top };
+    function avg(a) { return a.reduce(function (prev, cur) { return prev + cur; }) / a.length; }
 }
 /// <reference path="csstype.d.ts" />
 /// <reference path="react.d.ts" />
@@ -247,7 +268,24 @@ function app() {
             return [0, 1, 2,].every(function (i) { return isNumeric(a[i]); }) ? new Date(+a[0], +a[1] - 1, +a[2]) : new Date(NaN);
         }
         function isDateValid(d) { return d instanceof Date && !isNaN(+d); }
-        var pars, days, from0, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3;
+        function auxMove(e) {
+            var _a, _b;
+            var p = eventPosToElement(e, graph);
+            var h = (_b = ((_a = nearestArr[p.x]) !== null && _a !== void 0 ? _a : [])[p.y]) !== null && _b !== void 0 ? _b : null;
+            if (h !== lastHighlighted) {
+                if (lastHighlighted) {
+                    setStyle(lastHighlighted.point, { border: "none" });
+                    setStyle(lastHighlighted.tr, { backgroundColor: null });
+                }
+                if (h) {
+                    setStyle(h.point, { border: "1px solid black" });
+                    setStyle(h.tr, { backgroundColor: "#ddd" });
+                }
+                lastHighlighted = h;
+            }
+            console.log(p.x, p.y);
+        }
+        var pars, days, from0, from, hitsCount, to, table, graph, div, data, data2, _a, x1, x2, _b, y1, y2, xAxis, yAxis, data3, nearestArr, lastHighlighted;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
@@ -257,68 +295,83 @@ function app() {
                     from = isDateValid(from0) ? from0 : nextDay1(new Date(), -days);
                     hitsCount = 300;
                     to = nextDay1(from, days);
-                    div = myCreateElement("div", { style: { backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px", } },
-                        myCreateElement("div", { style: { height: "10px", } }),
+                    div = myCreateElement("div", { style: { backgroundColor: "rgb(246, 246, 239)", margin: "10px 100px", padding: "10px" } },
+                        myCreateElement("div", { style: { height: "10px" } }),
                         myCreateElement("div", null,
                             myCreateElement("span", { title: formatDate(from) }, formatDate2(from)),
                             " - ",
                             myCreateElement("span", { title: formatDate(to) }, formatDate2(nextDay1(to, -1)))),
-                        myCreateElement("div", { style: { height: "10px", } }),
-                        graph = myCreateElement("div", { style: { float: "right", position: "sticky", top: "60px", width: "600px", height: "300px", } }),
-                        table = myCreateElement("table", { style: { borderCollapse: "collapse", } },
+                        myCreateElement("div", { style: { height: "10px" } }),
+                        graph = myCreateElement("div", { style: { float: "right", position: "sticky", top: "60px", width: "600px", height: "300px" } }),
+                        table = myCreateElement("table", { style: { borderCollapse: "collapse" } },
                             myCreateElement("tr", null,
                                 myCreateElement("td", null, "..."))));
-                    return [4 /*yield*/, fetch("https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>" + from.getTime() / 1000 + ",created_at_i<" + to.getTime() / 1000 + "&hitsPerPage=" + hitsCount)];
+                    return [4 /*yield*/, fetch("https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>".concat(from.getTime() / 1000, ",created_at_i<").concat(to.getTime() / 1000, "&hitsPerPage=").concat(hitsCount))];
                 case 1: return [4 /*yield*/, (_c.sent()).json()];
                 case 2:
                     data = _c.sent();
                     data2 = data.hits.map(function (h) {
                         var _a, _b, _c;
                         return ({
-                            url: (_a = h.url) !== null && _a !== void 0 ? _a : "https://news.ycombinator.com/item?id=" + h.objectID,
-                            urlComments: "https://news.ycombinator.com/item?id=" + h.objectID,
+                            url: (_a = h.url) !== null && _a !== void 0 ? _a : "https://news.ycombinator.com/item?id=".concat(h.objectID),
+                            urlComments: "https://news.ycombinator.com/item?id=".concat(h.objectID),
                             created_at: new Date(h.created_at_i * 1000),
                             title: (_b = h.title) !== null && _b !== void 0 ? _b : "",
                             points: h.points,
-                            num_comments: (_c = h.num_comments) !== null && _c !== void 0 ? _c : 0,
+                            num_comments: (_c = h.num_comments) !== null && _c !== void 0 ? _c : 0
                         });
                     });
                     _a = [30, 590,], x1 = _a[0], x2 = _a[1], _b = [282, 10,], y1 = _b[0], y2 = _b[1];
                     xAxis = createTimeAxis(from, to, x1, x2);
-                    yAxis = createCommonAxis(Math.min.apply(Math, __spreadArrays([100], data2.map(function (h) { return h.points; }))), Math.max.apply(Math, __spreadArrays([1000], data2.map(function (h) { return h.points; }))), y1, y2);
+                    yAxis = createCommonAxis(Math.min.apply(Math, __spreadArray([100], data2.map(function (h) { return h.points; }), false)), Math.max.apply(Math, __spreadArray([1000], data2.map(function (h) { return h.points; }), false)), y1, y2);
                     data3 = data2.map(function (h) {
                         var tr = myCreateElement("tr", null,
                             myCreateElement("td", null, h.points),
-                            myCreateElement("td", { style: { paddingLeft: "10px", whiteSpace: "nowrap", }, title: formatDate(h.created_at) }, formatDate2(h.created_at)),
-                            myCreateElement("td", { style: { paddingLeft: "10px", } },
+                            myCreateElement("td", { style: { paddingLeft: "10px", whiteSpace: "nowrap" }, title: formatDate(h.created_at) }, formatDate2(h.created_at)),
+                            myCreateElement("td", { style: { paddingLeft: "10px" } },
                                 myCreateElement("a", { href: h.url }, h.title),
                                 " | ",
                                 myCreateElement("a", { href: h.urlComments },
                                     h.num_comments,
                                     " comments")));
-                        var point = myCreateElement("a", { href: h.urlComments, className: "point", title: h.title, style: { position: "absolute", left: xAxis.toDisp(h.created_at) - 3 + "px", top: yAxis.toDisp(h.points) - 4 + "px", width: "7px", height: "7px", borderRadius: "100px", } });
-                        tr.onmouseenter = function () { return setStyle(point, { border: "1px solid black", }); };
-                        tr.onmouseleave = function () { return setStyle(point, { border: "none", }); };
-                        point.onmouseenter = function () { return setStyle(tr, { backgroundColor: "#ddd", }); };
-                        point.onmouseleave = function () { return setStyle(tr, { backgroundColor: null, }); };
-                        return __assign(__assign({}, h), { tr: tr, point: point });
+                        var x = xAxis.toDisp(h.created_at);
+                        var y = yAxis.toDisp(h.points) - 1;
+                        var point = myCreateElement("a", { href: h.urlComments, className: "point", title: h.title, style: { position: "absolute", left: "".concat(x - 3, "px"), top: "".concat(y - 3, "px"), width: "7px", height: "7px", borderRadius: "100px" } });
+                        tr.onmouseenter = function () { return setStyle(point, { border: "1px solid black" }); };
+                        tr.onmouseleave = function () { return setStyle(point, { border: "none" }); };
+                        //point.onmouseenter = () => setStyle(tr, { backgroundColor: "#ddd", });
+                        //point.onmouseleave = () => setStyle(tr, { backgroundColor: null as any as string, });
+                        return __assign(__assign({}, h), { tr: tr, point: point, x: x, y: y });
                     });
+                    nearestArr = range(600).map(function (x) { return range(300).map(function (y) {
+                        var hNearest = null;
+                        var hNearestDist = Infinity;
+                        data3.forEach(function (h) {
+                            var hNearestDist2 = Math.pow((h.x - x), 2) + Math.pow((h.y - y), 2);
+                            if (hNearestDist2 < hNearestDist) {
+                                hNearestDist = hNearestDist2;
+                                hNearest = h;
+                            }
+                        });
+                        return hNearest;
+                    }); });
+                    lastHighlighted = null;
+                    graph.onmousemove = auxMove;
+                    graph.onmouseleave = auxMove;
                     // zobrazeni tabulky
-                    table.innerHTML = "";
-                    ac(table, data3.map(function (h) { return h.tr; }));
+                    replaceContent(table, data3.map(function (h) { return h.tr; }));
                     // zobrazeni grafu
-                    ac(graph, myCreateElement("svg", { style: { width: "100%", height: "100%", transform: "translate(-0.5px, -0.5px)", backgroundColor: "#fff", pointerEvents: "none", } },
+                    ac(graph, myCreateElement("svg", { style: { width: "100%", height: "100%", transform: "translate(-0.5px, -0.5px)", backgroundColor: "#fff", pointerEvents: "none" } },
                         yAxis.linesH(x1, x2),
                         xAxis.linesV(y1, y2),
-                        myCreateElement("path", { style: { fill: "none", stroke: "#999", }, d: "M" + x1 + "," + y1 + " H" + x2 }),
-                        myCreateElement("path", { style: { fill: "none", stroke: "#999", }, d: "M" + x1 + "," + y1 + " V" + y2 })), data3.map(function (h) { return h.point; }), xAxis.linesV2(y1, y2), myCreateElement("div", null,
+                        myCreateElement("path", { style: { fill: "none", stroke: "#999" }, d: "M".concat(x1, ",").concat(y1, " H").concat(x2) }),
+                        myCreateElement("path", { style: { fill: "none", stroke: "#999" }, d: "M".concat(x1, ",").concat(y1, " V").concat(y2) })), data3.map(function (h) { return h.point; }), xAxis.linesV2(y1, y2), myCreateElement("div", null,
                         a(nextDay1(from, -days), days, myCreateElement("span", null, "<")),
                         " ",
                         a(nextDay1(from, days), days, myCreateElement("span", null, ">")),
                         " ",
                         days === 1 ? a(nextDay1(from, -3), 7, "^") : ""));
-                    document.body.innerHTML = "";
-                    ac(document.body, div);
+                    replaceContent(document.body, div);
                     return [2 /*return*/];
             }
         });
@@ -326,18 +379,18 @@ function app() {
 }
 function a(from2, days2, text, style) {
     if (style === void 0) { style = {}; }
-    return myCreateElement("a", { href: "#from=" + from2.getFullYear() + "-" + (from2.getMonth() + 1) + "-" + from2.getDate() + "&days=" + days2, style: style }, text);
+    return myCreateElement("a", { href: "#from=".concat(from2.getFullYear(), "-").concat(from2.getMonth() + 1, "-").concat(from2.getDate(), "&days=").concat(days2), style: style }, text);
 }
 //function formatDay(day: Date) { return `${day.getFullYear()}-${pad(day.getMonth() + 1, 2)}-${pad(day.getDate(), 2)}`; }
-function formatDate2(d) { return d.getDate() + ". " + (d.getMonth() + 1) + "."; }
+function formatDate2(d) { return "".concat(d.getDate(), ". ").concat(d.getMonth() + 1, "."); }
 function isMonday(d) { return d.getDay() === 1; }
 function createTimeAxis(dataFrom, dataTo, dispFrom, dispTo) {
-    return { toDisp: toDisp, linesV: linesV, linesV2: linesV2, };
+    return { toDisp: toDisp, linesV: linesV, linesV2: linesV2 };
     function toDisp(x) { return linInp(x.getTime(), dataFrom.getTime(), dataTo.getTime(), dispFrom, dispTo); }
     function linesV(y1, y2) {
         var ret = [];
         for (var i = dataFrom; i < dataTo; i = nextDay1(i, 1))
-            ret.push(myCreateElement("path", { style: { fill: "none", stroke: isMonday(i) ? "#ccc" : "#eee", }, d: "M" + Math.round(toDisp(i)) + "," + y1 + " V" + y2 }));
+            ret.push(myCreateElement("path", { style: { fill: "none", stroke: isMonday(i) ? "#ccc" : "#eee" }, d: "M".concat(Math.round(toDisp(i)), ",").concat(y1, " V").concat(y2) }));
         //for (let i = dataFrom; i < dataTo; i = nextDay1(i, 1))
         //	ret.push(<text x={Math.round(toDisp(i))} y={y1 + 1} style={{ font: "normal 12px sans-serif", fill: "#666", dominantBaseline: "hanging", }}>{formatDate2(i)}</text>);
         return ret;
@@ -345,20 +398,20 @@ function createTimeAxis(dataFrom, dataTo, dispFrom, dispTo) {
     function linesV2(y1, y2) {
         var ret = [];
         for (var i = dataFrom; i < dataTo; i = nextDay1(i, 1))
-            ret.push(a(i, 1, formatDate2(i), { position: "absolute", left: Math.round(toDisp(i)) + "px", top: y1 + 1 + "px", font: "normal 12px sans-serif", }));
+            ret.push(a(i, 1, formatDate2(i), { position: "absolute", left: "".concat(Math.round(toDisp(i)), "px"), top: "".concat(y1 + 1, "px"), font: "normal 12px sans-serif" }));
         return ret;
     }
 }
 function createCommonAxis(dataFrom, dataTo, dispFrom, dispTo) {
-    return { toDisp: toDisp, linesH: linesH, };
+    return { toDisp: toDisp, linesH: linesH };
     function toDisp(x) { return linInp(trans(x), trans(dataFrom), trans(dataTo), dispFrom - 5, dispTo + 5); }
     function trans(x) { return Math.log(x); }
     function linesH(x1, x2) {
         var ret = [];
         for (var i = 0; i < dataTo; i += 100)
-            ret.push(myCreateElement("path", { style: { fill: "none", stroke: i % 1000 === 0 ? "#ccc" : i % 500 === 0 ? "#ddd" : "#eee", }, d: "M" + x1 + "," + Math.round(toDisp(i)) + " H" + x2 }));
+            ret.push(myCreateElement("path", { style: { fill: "none", stroke: i % 1000 === 0 ? "#ccc" : i % 500 === 0 ? "#ddd" : "#eee" }, d: "M".concat(x1, ",").concat(Math.round(toDisp(i)), " H").concat(x2) }));
         [3000, 2000, 1000, 500, 400, 300, 200, 100, 50, 40, 30, 20, 10,].filter(function (i) { return dataFrom <= i && i < dataTo; })
-            .forEach(function (i) { return ret.push(myCreateElement("text", { x: x1 - 4, y: toDisp(i), style: { font: "normal 12px sans-serif", fill: "#666", textAnchor: "end", dominantBaseline: "middle", } }, i >= 1000 ? i / 1000 + "k" : i)); });
+            .forEach(function (i) { return ret.push(myCreateElement("text", { x: x1 - 4, y: toDisp(i), style: { font: "normal 12px sans-serif", fill: "#666", textAnchor: "end", dominantBaseline: "middle" } }, i >= 1000 ? "".concat(i / 1000, "k") : i)); });
         return ret;
     }
 }

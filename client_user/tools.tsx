@@ -8,6 +8,8 @@ function nextDay1(d: Date, step: number) { return new Date(d.getFullYear(), d.ge
 
 
 
+function range(n: number) { return Array(n).fill(0).map((_, i) => i); }
+
 
 function setAttr(element: Element, attrs: { [k: string]: string | number | React.CSSProperties }) {
 	Object.keys(attrs).forEach(k => {
@@ -105,6 +107,12 @@ function myCreateElement<T extends keyof ElementTagNameMap/*, U*/>(tag: T/* | ((
 }
 
 
+function replaceContent(parent: HTMLElement, ...newContent: TChild[]) {
+	parent.innerText = "";
+	ac(parent, newContent)
+}
+
+
 
 
 
@@ -113,4 +121,17 @@ function toDictionary<T, TKey extends keyof any, TValue>(arr: T[], keySelector: 
 	const ret: Record<TKey, TValue> = {} as Record<TKey, TValue>;
 	arr.forEach(p => ret[keySelector(p)] = valueSelector(p));
 	return ret;
+}
+
+
+
+function isTouchEvent(e: MouseEvent | PointerEvent | TouchEvent): e is TouchEvent { return (e as TouchEvent).touches !== undefined; }
+function eventPosToElement(e: MouseEvent | PointerEvent | TouchEvent, elem: Element) {
+	const rect = elem.getBoundingClientRect();
+	const pos = isTouchEvent(e) ? {
+		clientX: avg(range(e.touches.length).map(i => e.touches[i].clientX)),
+		clientY: avg(range(e.touches.length).map(i => e.touches[i].clientY)),
+	} : e;
+	return { x: pos.clientX - rect.left, y: pos.clientY - rect.top, };
+	function avg(a: number[]) { return a.reduce((prev, cur) => prev + cur) / a.length; }
 }

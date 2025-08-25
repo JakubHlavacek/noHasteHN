@@ -76,20 +76,51 @@ async function app() {
 				<td style={{ paddingLeft: "10px", whiteSpace: "nowrap", }} title={formatDate(h.created_at)}>{formatDate2(h.created_at)}</td>
 				<td style={{ paddingLeft: "10px", }}><a href={h.url}>{h.title}</a> | <a href={h.urlComments}>{h.num_comments} comments</a></td>
 			</tr>;
+		const x = xAxis.toDisp(h.created_at);
+		const y = yAxis.toDisp(h.points) - 1;
 		const point =
-			<a href={h.urlComments} className="point" title={h.title!} style={{ position: "absolute", left: `${xAxis.toDisp(h.created_at) - 3}px`, top: `${yAxis.toDisp(h.points) - 4}px`, width: "7px", height: "7px", borderRadius: "100px", }} />;
+			<a href={h.urlComments} className="point" title={h.title!} style={{ position: "absolute", left: `${x - 3}px`, top: `${y - 3}px`, width: "7px", height: "7px", borderRadius: "100px", }} />;
 
 		tr.onmouseenter = () => setStyle(point, { border: "1px solid black", });
 		tr.onmouseleave = () => setStyle(point, { border: "none", });
-		point.onmouseenter = () => setStyle(tr, { backgroundColor: "#ddd", });
-		point.onmouseleave = () => setStyle(tr, { backgroundColor: null as any as string, });
+		//point.onmouseenter = () => setStyle(tr, { backgroundColor: "#ddd", });
+		//point.onmouseleave = () => setStyle(tr, { backgroundColor: null as any as string, });
 
-		return { ...h, tr, point, };
+		return { ...h, tr, point, x, y, };
 	});
 
+	// voronoi
+	const nearestArr = range(600).map(x => range(300).map(y => {
+		let hNearest: typeof data3[0] | null = null;
+		let hNearestDist = Infinity;
+		data3.forEach(h => {
+			const hNearestDist2 = (h.x - x) ** 2 + (h.y - y) ** 2;
+			if (hNearestDist2 < hNearestDist) { hNearestDist = hNearestDist2; hNearest = h; }
+		});
+		return hNearest as typeof data3[0] | null;
+	}));
+	let lastHighlighted: typeof data3[0] | null = null;
+	function auxMove(e: MouseEvent) {
+		const p = eventPosToElement(e, graph);
+		const h = (nearestArr[p.x] ?? [])[p.y] ?? null;
+		if (h !== lastHighlighted) {
+			if (lastHighlighted) {
+				setStyle(lastHighlighted.point, { border: "none", });
+				setStyle(lastHighlighted.tr, { backgroundColor: null as any as string, });
+			}
+			if (h) {
+				setStyle(h.point, { border: "1px solid black", });
+				setStyle(h.tr, { backgroundColor: "#ddd", });
+			}
+			lastHighlighted = h;
+		}
+		console.log(p.x, p.y);
+	}
+	graph.onmousemove = auxMove;
+	graph.onmouseleave = auxMove;
+
 	// zobrazeni tabulky
-	table.innerHTML = "";
-	ac(table, data3.map(h => h.tr));
+	replaceContent(table, data3.map(h => h.tr));
 
 	// zobrazeni grafu
 	ac(graph,
@@ -104,8 +135,7 @@ async function app() {
 		<div>{a(nextDay1(from, -days), days, <span>&lt;</span>)} {a(nextDay1(from, days), days, <span>&gt;</span>)} {days === 1 ? a(nextDay1(from, -3), 7, "^") : ""}</div>
 	);
 
-	document.body.innerHTML = "";
-	ac(document.body, div);
+	replaceContent(document.body, div);
 }
 
 function a(from2: Date, days2: number, text: TChild, style: React.CSSProperties = {}) {
