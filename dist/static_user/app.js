@@ -344,6 +344,8 @@ function app() {
                         return __assign(__assign({}, h), { tr: tr, point: point, x: x, y: y });
                     });
                     nearestArr = range(600).map(function (x) { return range(300).map(function (y) {
+                        if (y > y1)
+                            return null;
                         var hNearest = null;
                         var hNearestDist = Infinity;
                         data3.forEach(function (h) {

@@ -91,6 +91,8 @@ async function app() {
 
 	// voronoi
 	const nearestArr = range(600).map(x => range(300).map(y => {
+		if (y > y1)
+			return null;
 		let hNearest: typeof data3[0] | null = null;
 		let hNearestDist = Infinity;
 		data3.forEach(h => {
